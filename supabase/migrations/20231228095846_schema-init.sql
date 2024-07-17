@@ -2193,7 +2193,7 @@ CREATE TYPE "ObituaryExerciseCategory" AS ENUM (
 
 CREATE TABLE legacy_letters (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  author_id UUID NOT NULL REFERENCES family_members(id),
+  author_id UUID NOT NULL REFERENCES family_members(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
   content TEXT,
   attachment_url TEXT,
@@ -2203,12 +2203,12 @@ CREATE TABLE legacy_letters (
 CREATE TABLE legacy_letter_recipients (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   legacy_letter_id UUID NOT NULL
-  family_member_id UUID NOT NULL REFERENCES family_members(id)
+  family_member_id UUID NOT NULL REFERENCES family_members(id) ON DELETE CASCADE
 );
 
 CREATE TABLE family_album_images (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  family_id UUID NOT NULL REFERENCES families(id),
+  family_id UUID NOT NULL REFERENCES families(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
   description TEXT NOT NULL,
   attachment_url TEXT
@@ -2216,7 +2216,7 @@ CREATE TABLE family_album_images (
 
 CREATE TABLE stories (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  author_id UUID NOT NULL,
+  author_id UUID NOT NULL REFERENCES family_members(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
   description TEXT NOT NULL,
   attachment_url TEXT
@@ -2224,14 +2224,14 @@ CREATE TABLE stories (
 
 CREATE TABLE phrases (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  family_member_id UUID NOT NULL REFERENCES family_members(i d)
+  family_member_id UUID NOT NULL REFERENCES family_members(id) ON DELETE CASCADE,
   phrase TEXT NOT NULL,
   category FAMILYPHRASECATEGORY NOT NULL
 );  
 
 CREATE TABLE reflections (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  family_id UUID NOT NULL REFERENCES families(id),
+  family_id UUID NOT NULL REFERENCES families(id) ON DELETE CASCADE,
   reflection TEXT NOT NULL,
   category OBITUARYEXERCISECATEGORY NOT NULL
 );
