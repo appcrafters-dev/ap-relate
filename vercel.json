@@ -1,0 +1,16 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/session-reminders/168",
+      "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/session-reminders/120",
+      "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/session-reminders/24",
+      "schedule": "0 * * * *"
+    }
+  ]
+}

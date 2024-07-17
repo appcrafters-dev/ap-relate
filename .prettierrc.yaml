@@ -1,0 +1,16 @@
+trailingComma: "es5"
+tabWidth: 2
+semi: true
+importOrder:
+  [
+    "@styles/(.*)$",
+    "^@lib/(.*)$",
+    "^@api/(.*)$",
+    "^@context/(.*)$",
+    "@hooks/(.*)$",
+    "^@app/(.*)$",
+    "^[./]",
+  ]
+
+importOrderSeparation: true
+importOrderSortSpecifiers: true

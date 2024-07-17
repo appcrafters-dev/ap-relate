@@ -1,0 +1,15 @@
+-- DROP all policies
+-- DO $$
+-- DECLARE policy record;
+-- BEGIN FOR policy IN
+-- SELECT tablename,
+--     policyname
+-- FROM pg_policies
+-- WHERE schemaname = 'public' LOOP EXECUTE format(
+--         'DROP POLICY IF EXISTS %I ON public.%I;',
+--         policy.policyname,
+--         policy.tablename
+--     );
+-- END LOOP;
+-- END;
+-- $$ LANGUAGE plpgsql;

@@ -1,0 +1,128 @@
+/* default */
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Lora:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap");
+
+/* serif */
+@import url("https://fonts.googleapis.com/css2?family=Bentham&display=swap");
+
+/* brand */
+@import url("https://fonts.googleapis.com/css2?family=Montserrat&display=swap");
+
+/* tailwind */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ghost content */
+.prose img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 500px;
+  width: 100%;
+  height: auto;
+}
+
+.kg-file-card {
+  display: flex;
+}
+.kg-file-card, .kg-file-card * {
+  box-sizing: border-box;
+}
+.kg-file-card a.kg-file-card-container {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  color: inherit;
+  padding: 6px;
+  min-height: 92px;
+  border: 1px solid rgb(124 139 154/25%);
+  border-radius: 3px;
+  transition: all ease-in-out .35s;
+  text-decoration: none;
+  width: 100%;
+}
+.kg-file-card, .kg-file-card * {
+  box-sizing: border-box;
+}
+
+.prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+  @apply font-brand;
+}
+
+.tfm-info-box {
+  @apply bg-white/80 shadow-sm border-l-4 font-medium border-tfm-secondary-500 text-tfm-secondary-900 p-4 mb-4 rounded;
+}
+
+/* misc */
+html {
+  scroll-behavior: smooth;
+}
+.prose v {
+  @apply font-bold pr-2;
+}
+
+
+@layer components {
+  .tfm-label {
+    @apply block font-brand text-sm font-semibold uppercase tracking-wider text-tfm-primary-900;
+  }
+  .tfm-input {
+    @apply mt-2 block w-full appearance-none rounded border border-gray-200 p-3 placeholder-gray-400 shadow-sm focus:border-tfm-primary focus:outline-none focus:ring-tfm-primary;
+  }
+  .tfm-submit {
+    @apply flex w-full justify-center rounded border border-transparent bg-tfm-primary px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-tfm-primary-900 focus:outline-none focus:ring-2 focus:ring-tfm-secondary focus:ring-offset-2;
+  }
+}
+
+.spinner {
+  -webkit-animation: rotate 2s linear infinite;
+  animation: rotate 2s linear infinite;
+  display: inline-block;
+  stroke: currentColor;
+}
+.spinner .path {
+  stroke: currentColor;
+  stroke-linecap: round;
+  -webkit-animation: dash 1.5s ease-in-out infinite;
+  animation: dash 1.5s ease-in-out infinite;
+}
+
+@-webkit-keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+@-webkit-keyframes dash {
+  0% {
+    stroke-dasharray: 1, 150;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -35;
+  }
+  100% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -124;
+  }
+}
+@keyframes dash {
+  0% {
+    stroke-dasharray: 1, 150;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -35;
+  }
+  100% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -124;
+  }
+}

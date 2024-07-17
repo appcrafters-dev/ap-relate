@@ -1,0 +1,32 @@
+{
+  "env": {
+    "browser": true,
+    "node": true,
+    "es6": true,
+    "jest": true
+  },
+  "extends": ["next", "next/core-web-vitals", "prettier", "eslint:recommended"],
+  "plugins": ["unused-imports"],
+  "globals": {
+    "React": "readonly"
+  },
+  "rules": {
+    "no-unused-vars": "off",
+    // TODO: temporary savvycal fix
+    "no-undef": "off",
+    "unused-imports/no-unused-imports": "error",
+    "import/no-anonymous-default-export": [
+      "error",
+      {
+        "allowArray": false,
+        "allowArrowFunction": false,
+        "allowAnonymousClass": false,
+        "allowAnonymousFunction": false,
+        "allowCallExpression": true, // The true value here is for backward compatibility
+        "allowLiteral": false,
+        "allowObject": true
+      }
+    ],
+    "@next/next/no-img-element": "off"
+  }
+}
