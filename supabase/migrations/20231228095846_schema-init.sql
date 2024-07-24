@@ -2143,28 +2143,28 @@ AFTER INSERT ON families
 FOR EACH ROW
 EXECUTE FUNCTION assign_coach_and_add_welcome_session();
 
--- POLICES FOR RESOURCES
--- Policy for Coach or Coach Admin to view all entries
-CREATE POLICY access_all_resources_for_coaches ON public.resources
-FOR SELECT USING (public.has_roles(ARRAY['Coach', 'Coach Admin']));
--- WITH CHECK (public.has_roles(ARRAY['Coach', 'Coach Admin']));
+-- -- POLICES FOR RESOURCES
+-- -- Policy for Coach or Coach Admin to view all entries
+-- CREATE POLICY access_all_resources_for_coaches ON public.resources
+-- FOR SELECT USING (public.has_roles(ARRAY['Coach'::"Role", 'Coach Admin'::"Role"]));
+-- -- WITH CHECK (public.has_roles(ARRAY['Coach', 'Coach Admin']));
 
--- Policy for Partner or Partner Admin to view all except those targeting "coach"
-CREATE POLICY access_resources_for_partners ON public.resources
-FOR SELECT USING (
-  public.has_roles(ARRAY['Partner', 'Partner Admin'])
-  AND NOT ('coach' = ANY(target_roles))
-);
+-- -- Policy for Partner or Partner Admin to view all except those targeting "coach"
+-- CREATE POLICY access_resources_for_partners ON public.resources
+-- FOR SELECT USING (
+--   public.has_roles(ARRAY['Partner', 'Partner Admin'])
+--   AND NOT ('coach' = ANY(target_roles))
+-- );
 
--- Policy for all other roles to view only entries targeting "family"
-CREATE POLICY access_family_resources_for_others ON public.resources
-FOR SELECT USING (
-  'family' = ANY(target_roles)
-);
+-- -- Policy for all other roles to view only entries targeting "family"
+-- CREATE POLICY access_family_resources_for_others ON public.resources
+-- FOR SELECT USING (
+--   'family' = ANY(target_roles)
+-- );
 
--- Apply default policy to deny access unless explicitly allowed
-CREATE POLICY default_deny ON public.resources
-FOR ALL USING (false);
+-- -- Apply default policy to deny access unless explicitly allowed
+-- CREATE POLICY default_deny ON public.resources
+-- FOR ALL USING (false);
 
 -- ---------------------------------------------------------
 --                NEW TABLES
@@ -2175,280 +2175,280 @@ FOR ALL USING (false);
 --        ENUMS
 -- -------------------
 
-CREATE TYPE "FamilyPhraseCategory" AS ENUM (
-  'Motto',
-  'Principle',
-  'Mission Statement'
-); 
+-- CREATE TYPE "FamilyPhraseCategory" AS ENUM (
+--   'Motto',
+--   'Principle',
+--   'Mission Statement'
+-- ); 
 
-CREATE TYPE "ObituaryExerciseCategory" AS ENUM (
-  'Relationship',
-  'Achievement',
-  'Legacy'
-); 
+-- CREATE TYPE "ObituaryExerciseCategory" AS ENUM (
+--   'Relationship',
+--   'Achievement',
+--   'Legacy'
+-- ); 
 
--- -------------------
---        Tables
--- -------------------
+-- -- -------------------
+-- --        Tables
+-- -- -------------------
 
-CREATE TABLE legacy_letters (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  author_id UUID NOT NULL REFERENCES family_members(id) ON DELETE CASCADE,
-  title TEXT NOT NULL,
-  content TEXT,
-  attachment_url TEXT,
-  scheduled_date TIMESTAMPZ NOT NULL
-);
+-- CREATE TABLE legacy_letters (
+--   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--   author_id UUID NOT NULL REFERENCES family_members(id) ON DELETE CASCADE,
+--   title TEXT NOT NULL,
+--   content TEXT,
+--   attachment_url TEXT,
+--   scheduled_date timestamp with time zone NOT NULL
+-- );
 
-CREATE TABLE legacy_letter_recipients (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  legacy_letter_id UUID NOT NULL
-  family_member_id UUID NOT NULL REFERENCES family_members(id) ON DELETE CASCADE
-);
+-- CREATE TABLE legacy_letter_recipients (
+--   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--   legacy_letter_id UUID NOT NULL,
+--   family_member_id UUID NOT NULL REFERENCES family_members(id) ON DELETE CASCADE
+-- );
 
-CREATE TABLE family_album_images (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  family_id UUID NOT NULL REFERENCES families(id) ON DELETE CASCADE,
-  title TEXT NOT NULL,
-  description TEXT NOT NULL,
-  attachment_url TEXT
-); 
+-- CREATE TABLE family_album_images (
+--   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--   family_id UUID NOT NULL REFERENCES families(id) ON DELETE CASCADE,
+--   title TEXT NOT NULL,
+--   description TEXT NOT NULL,
+--   attachment_url TEXT
+-- ); 
 
-CREATE TABLE stories (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  author_id UUID NOT NULL REFERENCES family_members(id) ON DELETE CASCADE,
-  title TEXT NOT NULL,
-  description TEXT NOT NULL,
-  attachment_url TEXT
-);
+-- CREATE TABLE stories (
+--   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--   author_id UUID NOT NULL REFERENCES family_members(id) ON DELETE CASCADE,
+--   title TEXT NOT NULL,
+--   description TEXT NOT NULL,
+--   attachment_url TEXT
+-- );
 
-CREATE TABLE phrases (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  family_member_id UUID NOT NULL REFERENCES family_members(id) ON DELETE CASCADE,
-  phrase TEXT NOT NULL,
-  category FAMILYPHRASECATEGORY NOT NULL
-);  
+-- CREATE TABLE phrases (
+--   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--   family_member_id UUID NOT NULL REFERENCES family_members(id) ON DELETE CASCADE,
+--   phrase TEXT NOT NULL,
+--   category FAMILYPHRASECATEGORY NOT NULL
+-- );  
 
-CREATE TABLE reflections (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  family_id UUID NOT NULL REFERENCES families(id) ON DELETE CASCADE,
-  reflection TEXT NOT NULL,
-  category OBITUARYEXERCISECATEGORY NOT NULL
-);
+-- CREATE TABLE reflections (
+--   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--   family_id UUID NOT NULL REFERENCES families(id) ON DELETE CASCADE,
+--   reflection TEXT NOT NULL,
+--   category OBITUARYEXERCISECATEGORY NOT NULL
+-- );
 
--- -----------------------------------------------------------------------------
--- TRIGGER: update updated_at and updated_by for new tables
--- -----------------------------------------------------------------------------
+-- -- -----------------------------------------------------------------------------
+-- -- TRIGGER: update updated_at and updated_by for new tables
+-- -- -----------------------------------------------------------------------------
 
--- legacy_letters
+-- -- legacy_letters
 
-CREATE OR REPLACE FUNCTION update_meta_columns() RETURNS TRIGGER AS $$ BEGIN NEW.updated_at = NOW();
-NEW.updated_by = auth.uid();
-RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-DO $$
-DECLARE row record;
-BEGIN FOR row IN (
-  SELECT tablename
-  FROM pg_tables
-  WHERE schemaname = 'public'
-) LOOP EXECUTE format(
-  'CREATE OR REPLACE TRIGGER update_legacy_letters_meta_columns BEFORE UPDATE ON public.legacy_letters FOR EACH ROW EXECUTE FUNCTION update_meta_columns()',
-  row.tablename,
-  row.tablename
-);
-END LOOP;
-END;
-$$ LANGUAGE plpgsql;
+-- CREATE OR REPLACE FUNCTION update_meta_columns() RETURNS TRIGGER AS $$ BEGIN NEW.updated_at = NOW();
+-- NEW.updated_by = auth.uid();
+-- RETURN NEW;
+-- END;
+-- $$ LANGUAGE plpgsql;
+-- DO $$
+-- DECLARE row record;
+-- BEGIN FOR row IN (
+--   SELECT tablename
+--   FROM pg_tables
+--   WHERE schemaname = 'public'
+-- ) LOOP EXECUTE format(
+--   'CREATE OR REPLACE TRIGGER update_legacy_letters_meta_columns BEFORE UPDATE ON public.legacy_letters FOR EACH ROW EXECUTE FUNCTION update_meta_columns()',
+--   row.tablename,
+--   row.tablename
+-- );
+-- END LOOP;
+-- END;
+-- $$ LANGUAGE plpgsql;
 
--- legacy_letter_recipients
+-- -- legacy_letter_recipients
 
-CREATE OR REPLACE FUNCTION update_meta_columns() RETURNS TRIGGER AS $$ BEGIN NEW.updated_at = NOW();
-NEW.updated_by = auth.uid();
-RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-DO $$
-DECLARE row record;
-BEGIN FOR row IN (
-  SELECT tablename
-  FROM pg_tables
-  WHERE schemaname = 'public'
-) LOOP EXECUTE format(
-  'CREATE OR REPLACE TRIGGER update_legacy_letter_recipients_meta_columns BEFORE UPDATE ON public.legacy_letter_recipients FOR EACH ROW EXECUTE FUNCTION update_meta_columns()',
-  row.tablename,
-  row.tablename
-);
-END LOOP;
-END;
-$$ LANGUAGE plpgsql;
+-- CREATE OR REPLACE FUNCTION update_meta_columns() RETURNS TRIGGER AS $$ BEGIN NEW.updated_at = NOW();
+-- NEW.updated_by = auth.uid();
+-- RETURN NEW;
+-- END;
+-- $$ LANGUAGE plpgsql;
+-- DO $$
+-- DECLARE row record;
+-- BEGIN FOR row IN (
+--   SELECT tablename
+--   FROM pg_tables
+--   WHERE schemaname = 'public'
+-- ) LOOP EXECUTE format(
+--   'CREATE OR REPLACE TRIGGER update_legacy_letter_recipients_meta_columns BEFORE UPDATE ON public.legacy_letter_recipients FOR EACH ROW EXECUTE FUNCTION update_meta_columns()',
+--   row.tablename,
+--   row.tablename
+-- );
+-- END LOOP;
+-- END;
+-- $$ LANGUAGE plpgsql;
 
--- family_album_images
+-- -- family_album_images
 
-CREATE OR REPLACE FUNCTION update_meta_columns() RETURNS TRIGGER AS $$ BEGIN NEW.updated_at = NOW();
-NEW.updated_by = auth.uid();
-RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-DO $$
-DECLARE row record;
-BEGIN FOR row IN (
-  SELECT tablename
-  FROM pg_tables
-  WHERE schemaname = 'public'
-) LOOP EXECUTE format(
-  'CREATE OR REPLACE TRIGGER update_family_album_images_meta_columns BEFORE UPDATE ON public.family_album_images FOR EACH ROW EXECUTE FUNCTION update_meta_columns()',
-  row.tablename,
-  row.tablename
-);
-END LOOP;
-END;
-$$ LANGUAGE plpgsql;
+-- CREATE OR REPLACE FUNCTION update_meta_columns() RETURNS TRIGGER AS $$ BEGIN NEW.updated_at = NOW();
+-- NEW.updated_by = auth.uid();
+-- RETURN NEW;
+-- END;
+-- $$ LANGUAGE plpgsql;
+-- DO $$
+-- DECLARE row record;
+-- BEGIN FOR row IN (
+--   SELECT tablename
+--   FROM pg_tables
+--   WHERE schemaname = 'public'
+-- ) LOOP EXECUTE format(
+--   'CREATE OR REPLACE TRIGGER update_family_album_images_meta_columns BEFORE UPDATE ON public.family_album_images FOR EACH ROW EXECUTE FUNCTION update_meta_columns()',
+--   row.tablename,
+--   row.tablename
+-- );
+-- END LOOP;
+-- END;
+-- $$ LANGUAGE plpgsql;
 
--- stories
+-- -- stories
 
-CREATE OR REPLACE FUNCTION update_meta_columns() RETURNS TRIGGER AS $$ BEGIN NEW.updated_at = NOW();
-NEW.updated_by = auth.uid();
-RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-DO $$
-DECLARE row record;
-BEGIN FOR row IN (
-  SELECT tablename
-  FROM pg_tables
-  WHERE schemaname = 'public'
-) LOOP EXECUTE format(
-  'CREATE OR REPLACE TRIGGER update_stories_meta_columns BEFORE UPDATE ON public.stories FOR EACH ROW EXECUTE FUNCTION update_meta_columns()',
-  row.tablename,
-  row.tablename
-);
-END LOOP;
-END;
-$$ LANGUAGE plpgsql;
+-- CREATE OR REPLACE FUNCTION update_meta_columns() RETURNS TRIGGER AS $$ BEGIN NEW.updated_at = NOW();
+-- NEW.updated_by = auth.uid();
+-- RETURN NEW;
+-- END;
+-- $$ LANGUAGE plpgsql;
+-- DO $$
+-- DECLARE row record;
+-- BEGIN FOR row IN (
+--   SELECT tablename
+--   FROM pg_tables
+--   WHERE schemaname = 'public'
+-- ) LOOP EXECUTE format(
+--   'CREATE OR REPLACE TRIGGER update_stories_meta_columns BEFORE UPDATE ON public.stories FOR EACH ROW EXECUTE FUNCTION update_meta_columns()',
+--   row.tablename,
+--   row.tablename
+-- );
+-- END LOOP;
+-- END;
+-- $$ LANGUAGE plpgsql;
 
--- phrases
+-- -- phrases
 
-CREATE OR REPLACE FUNCTION update_meta_columns() RETURNS TRIGGER AS $$ BEGIN NEW.updated_at = NOW();
-NEW.updated_by = auth.uid();
-RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-DO $$
-DECLARE row record;
-BEGIN FOR row IN (
-  SELECT tablename
-  FROM pg_tables
-  WHERE schemaname = 'public'
-) LOOP EXECUTE format(
-  'CREATE OR REPLACE TRIGGER update_phrases_meta_columns BEFORE UPDATE ON public.phrases FOR EACH ROW EXECUTE FUNCTION update_meta_columns()',
-  row.tablename,
-  row.tablename
-);
-END LOOP;
-END;
-$$ LANGUAGE plpgsql;
+-- CREATE OR REPLACE FUNCTION update_meta_columns() RETURNS TRIGGER AS $$ BEGIN NEW.updated_at = NOW();
+-- NEW.updated_by = auth.uid();
+-- RETURN NEW;
+-- END;
+-- $$ LANGUAGE plpgsql;
+-- DO $$
+-- DECLARE row record;
+-- BEGIN FOR row IN (
+--   SELECT tablename
+--   FROM pg_tables
+--   WHERE schemaname = 'public'
+-- ) LOOP EXECUTE format(
+--   'CREATE OR REPLACE TRIGGER update_phrases_meta_columns BEFORE UPDATE ON public.phrases FOR EACH ROW EXECUTE FUNCTION update_meta_columns()',
+--   row.tablename,
+--   row.tablename
+-- );
+-- END LOOP;
+-- END;
+-- $$ LANGUAGE plpgsql;
 
--- reflections
+-- -- reflections
 
-CREATE OR REPLACE FUNCTION update_meta_columns() RETURNS TRIGGER AS $$ BEGIN NEW.updated_at = NOW();
-NEW.updated_by = auth.uid();
-RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-DO $$
-DECLARE row record;
-BEGIN FOR row IN (
-  SELECT tablename
-  FROM pg_tables
-  WHERE schemaname = 'public'
-) LOOP EXECUTE format(
-  'CREATE OR REPLACE TRIGGER update_reflections_meta_columns BEFORE UPDATE ON public.reflections FOR EACH ROW EXECUTE FUNCTION update_meta_columns()',
-  row.tablename,
-  row.tablename
-);
-END LOOP;
-END;
-$$ LANGUAGE plpgsql;
+-- CREATE OR REPLACE FUNCTION update_meta_columns() RETURNS TRIGGER AS $$ BEGIN NEW.updated_at = NOW();
+-- NEW.updated_by = auth.uid();
+-- RETURN NEW;
+-- END;
+-- $$ LANGUAGE plpgsql;
+-- DO $$
+-- DECLARE row record;
+-- BEGIN FOR row IN (
+--   SELECT tablename
+--   FROM pg_tables
+--   WHERE schemaname = 'public'
+-- ) LOOP EXECUTE format(
+--   'CREATE OR REPLACE TRIGGER update_reflections_meta_columns BEFORE UPDATE ON public.reflections FOR EACH ROW EXECUTE FUNCTION update_meta_columns()',
+--   row.tablename,
+--   row.tablename
+-- );
+-- END LOOP;
+-- END;
+-- $$ LANGUAGE plpgsql;
 
--- --------------------------------------------------------
---              RLS POLICIES FOR NEW TABLES 
--- --------------------------------------------------------
+-- -- --------------------------------------------------------
+-- --              RLS POLICIES FOR NEW TABLES 
+-- -- --------------------------------------------------------
 
--- Enable RLS for tables
-ALTER TABLE public.legacy_letters ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.legacy_letter_recipients ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.family_album_images ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.stories ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.phrases ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.reflections ENABLE ROW LEVEL SECURITY;
+-- -- Enable RLS for tables
+-- ALTER TABLE public.legacy_letters ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE public.legacy_letter_recipients ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE public.family_album_images ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE public.stories ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE public.phrases ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE public.reflections ENABLE ROW LEVEL SECURITY;
 
 
--- Policy to allow only authenticated users to access the new tables
+-- -- Policy to allow only authenticated users to access the new tables
 
-CREATE POLICY "Authenticated users can access legacy_letters" ON public.legacy_letters
-FOR ALL
-TO authenticated
-USING (auth.uid() IS NOT NULL)
-WITH CHECK (auth.uid() IS NOT NULL);
+-- CREATE POLICY "Authenticated users can access legacy_letters" ON public.legacy_letters
+-- FOR ALL
+-- TO authenticated
+-- USING (auth.uid() IS NOT NULL)
+-- WITH CHECK (auth.uid() IS NOT NULL);
 
-CREATE POLICY "Admin full access to legacy_letters" ON public.legacy_letters
-FOR ALL
-TO authenticated
-USING (public.has_roles(ARRAY ['Admin'::"Role"]));
+-- CREATE POLICY "Admin full access to legacy_letters" ON public.legacy_letters
+-- FOR ALL
+-- TO authenticated
+-- USING (public.has_roles(ARRAY ['Admin'::"Role"]));
 
-CREATE POLICY "Authenticated users can access legacy_letter_recipients" ON public.legacy_letter_recipients
-FOR ALL
-TO authenticated
-USING (auth.uid() IS NOT NULL)
-WITH CHECK (auth.uid() IS NOT NULL);
+-- CREATE POLICY "Authenticated users can access legacy_letter_recipients" ON public.legacy_letter_recipients
+-- FOR ALL
+-- TO authenticated
+-- USING (auth.uid() IS NOT NULL)
+-- WITH CHECK (auth.uid() IS NOT NULL);
 
-CREATE POLICY "Admin full access to legacy_letter_recipients" ON public.legacy_letter_recipients
-FOR ALL
-TO authenticated
-USING (public.has_roles(ARRAY ['Admin'::"Role"]));
+-- CREATE POLICY "Admin full access to legacy_letter_recipients" ON public.legacy_letter_recipients
+-- FOR ALL
+-- TO authenticated
+-- USING (public.has_roles(ARRAY ['Admin'::"Role"]));
 
-CREATE POLICY "Authenticated users can access family_album_images" ON public.family_album_images
-FOR ALL
-TO authenticated
-USING (auth.uid() IS NOT NULL)
-WITH CHECK (auth.uid() IS NOT NULL);
+-- CREATE POLICY "Authenticated users can access family_album_images" ON public.family_album_images
+-- FOR ALL
+-- TO authenticated
+-- USING (auth.uid() IS NOT NULL)
+-- WITH CHECK (auth.uid() IS NOT NULL);
 
-CREATE POLICY "Admin full access to family_album_images" ON public.family_album_images
-FOR ALL
-TO authenticated
-USING (public.has_roles(ARRAY ['Admin'::"Role"]));
+-- CREATE POLICY "Admin full access to family_album_images" ON public.family_album_images
+-- FOR ALL
+-- TO authenticated
+-- USING (public.has_roles(ARRAY ['Admin'::"Role"]));
 
-CREATE POLICY "Authenticated users can access stories" ON public.stories
-FOR ALL
-TO authenticated
-USING (auth.uid() IS NOT NULL)
-WITH CHECK (auth.uid() IS NOT NULL);
+-- CREATE POLICY "Authenticated users can access stories" ON public.stories
+-- FOR ALL
+-- TO authenticated
+-- USING (auth.uid() IS NOT NULL)
+-- WITH CHECK (auth.uid() IS NOT NULL);
 
-CREATE POLICY "Admin full access to stories" ON public.stories
-FOR ALL
-TO authenticated
-USING (public.has_roles(ARRAY ['Admin'::"Role"]));
+-- CREATE POLICY "Admin full access to stories" ON public.stories
+-- FOR ALL
+-- TO authenticated
+-- USING (public.has_roles(ARRAY ['Admin'::"Role"]));
 
-CREATE POLICY "Authenticated users can access phrases" ON public.phrases
-FOR ALL
-TO authenticated
-USING (auth.uid() IS NOT NULL)
-WITH CHECK (auth.uid() IS NOT NULL);
+-- CREATE POLICY "Authenticated users can access phrases" ON public.phrases
+-- FOR ALL
+-- TO authenticated
+-- USING (auth.uid() IS NOT NULL)
+-- WITH CHECK (auth.uid() IS NOT NULL);
 
-CREATE POLICY "Admin full access to phrases" ON public.phrases
-FOR ALL
-TO authenticated
-USING (public.has_roles(ARRAY ['Admin'::"Role"]));
+-- CREATE POLICY "Admin full access to phrases" ON public.phrases
+-- FOR ALL
+-- TO authenticated
+-- USING (public.has_roles(ARRAY ['Admin'::"Role"]));
 
-CREATE POLICY "Authenticated users can access reflections" ON public.reflections
-FOR ALL
-TO authenticated
-USING (auth.uid() IS NOT NULL)
-WITH CHECK (auth.uid() IS NOT NULL);
+-- CREATE POLICY "Authenticated users can access reflections" ON public.reflections
+-- FOR ALL
+-- TO authenticated
+-- USING (auth.uid() IS NOT NULL)
+-- WITH CHECK (auth.uid() IS NOT NULL);
 
-CREATE POLICY "Admin full access to reflections" ON public.reflections
-FOR ALL
-TO authenticated
-USING (public.has_roles(ARRAY ['Admin'::"Role"]));
+-- CREATE POLICY "Admin full access to reflections" ON public.reflections
+-- FOR ALL
+-- TO authenticated
+-- USING (public.has_roles(ARRAY ['Admin'::"Role"]));
