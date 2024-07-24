@@ -2143,28 +2143,28 @@ AFTER INSERT ON families
 FOR EACH ROW
 EXECUTE FUNCTION assign_coach_and_add_welcome_session();
 
--- POLICES FOR RESOURCES
--- Policy for Coach or Coach Admin to view all entries
-CREATE POLICY access_all_resources_for_coaches ON public.resources
-FOR SELECT USING (public.has_roles(ARRAY['Coach', 'Coach Admin']));
--- WITH CHECK (public.has_roles(ARRAY['Coach', 'Coach Admin']));
+-- -- POLICES FOR RESOURCES
+-- -- Policy for Coach or Coach Admin to view all entries
+-- CREATE POLICY access_all_resources_for_coaches ON public.resources
+-- FOR SELECT USING (public.has_roles(ARRAY['Coach'::"Role", 'Coach Admin'::"Role"]));
+-- -- WITH CHECK (public.has_roles(ARRAY['Coach', 'Coach Admin']));
 
--- Policy for Partner or Partner Admin to view all except those targeting "coach"
-CREATE POLICY access_resources_for_partners ON public.resources
-FOR SELECT USING (
-  public.has_roles(ARRAY['Partner', 'Partner Admin'])
-  AND NOT ('coach' = ANY(target_roles))
-);
+-- -- Policy for Partner or Partner Admin to view all except those targeting "coach"
+-- CREATE POLICY access_resources_for_partners ON public.resources
+-- FOR SELECT USING (
+--   public.has_roles(ARRAY['Partner', 'Partner Admin'])
+--   AND NOT ('coach' = ANY(target_roles))
+-- );
 
--- Policy for all other roles to view only entries targeting "family"
-CREATE POLICY access_family_resources_for_others ON public.resources
-FOR SELECT USING (
-  'family' = ANY(target_roles)
-);
+-- -- Policy for all other roles to view only entries targeting "family"
+-- CREATE POLICY access_family_resources_for_others ON public.resources
+-- FOR SELECT USING (
+--   'family' = ANY(target_roles)
+-- );
 
--- Apply default policy to deny access unless explicitly allowed
-CREATE POLICY default_deny ON public.resources
-FOR ALL USING (false);
+-- -- Apply default policy to deny access unless explicitly allowed
+-- CREATE POLICY default_deny ON public.resources
+-- FOR ALL USING (false);
 
 -- ---------------------------------------------------------
 --                NEW TABLES
