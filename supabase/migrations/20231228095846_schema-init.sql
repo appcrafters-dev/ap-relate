@@ -2202,7 +2202,7 @@ CREATE TABLE legacy_letters (
 
 CREATE TABLE legacy_letter_recipients (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  legacy_letter_id UUID NOT NULL
+  legacy_letter_id UUID NOT NULL,
   family_member_id UUID NOT NULL REFERENCES family_members(id) ON DELETE CASCADE
 );
 
