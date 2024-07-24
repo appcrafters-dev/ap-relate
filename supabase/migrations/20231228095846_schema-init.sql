@@ -2197,7 +2197,7 @@ CREATE TABLE legacy_letters (
   title TEXT NOT NULL,
   content TEXT,
   attachment_url TEXT,
-  scheduled_date TIMESTAMPZ NOT NULL
+  scheduled_date timestamp with time zone NOT NULL
 );
 
 CREATE TABLE legacy_letter_recipients (
